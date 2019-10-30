@@ -19,7 +19,7 @@ public class Main {
     System.out.println("Choose to play as 1st (X) or 2nd (O).");
     String xOrO = scanInput.next();
 
-    gameService.playGame(xOrO);
+    gameService.playMoreGames(xOrO);
 
   }
 

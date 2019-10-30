@@ -14,6 +14,14 @@ public class GameService {
   public StrategyX strategyX = new StrategyX();
   public StrategyO strategyO = new StrategyO();
 
+  public void playMoreGames(String xOrO) {
+
+    playGame(xOrO);
+    System.out.println("Next game: ");
+    playGame(xOrO);
+
+  }
+
   public void playGame(String xOrO) {
 
     Game game = new Game();
@@ -57,7 +65,7 @@ public class GameService {
         countMoves++;
       }
       System.out.println("Game ends in draw.");
-
+      strategyO.updateEvaluations(game, "D");
     } else if (xOrO.equals("P")) {
       try {
         game = strategyX.doMove(game);

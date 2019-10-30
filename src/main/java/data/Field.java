@@ -20,4 +20,10 @@ public class Field {
     if (xOrO.equals("O")) evaluationValue = 0.1;
   }
 
+  public Field() {
+    mark = "_";
+    gamesPlayedOn = 0;
+    evaluationValue = 0;
+  }
+
 }

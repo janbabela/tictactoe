@@ -25,7 +25,21 @@ public class StrategyO {
   private Map<Integer, List<Evaluation>> evaluations = new HashMap<>();
 
   public StrategyO() {
-    evaluations.put(2, new ArrayList<>());
+    Evaluation testEvaluation2 = new Evaluation();
+    testEvaluation2.getEvaluation()[0][1].setEvaluationValue(-1);
+    testEvaluation2.getEvaluation()[0][1].setGamesPlayedOn(1);
+    testEvaluation2.getEvaluation()[1][0].setEvaluationValue(-1);
+    testEvaluation2.getEvaluation()[1][0].setGamesPlayedOn(1);
+    testEvaluation2.getEvaluation()[2][1].setEvaluationValue(-1);
+    testEvaluation2.getEvaluation()[2][1].setGamesPlayedOn(1);
+    testEvaluation2.getEvaluation()[1][2].setEvaluationValue(-1);
+    testEvaluation2.getEvaluation()[1][2].setGamesPlayedOn(1);
+    testEvaluation2.getEvaluation()[1][1].setEvaluationValue(-2);
+    testEvaluation2.getEvaluation()[1][1].setMark("X");
+    testEvaluation2.getEvaluation()[1][1].setGamesPlayedOn(1);
+    List<Evaluation> testEvaluationForStep2 = new ArrayList<>();
+    testEvaluationForStep2.add(testEvaluation2);
+    evaluations.put(2, testEvaluationForStep2);
     evaluations.put(4, new ArrayList<>());
     evaluations.put(6, new ArrayList<>());
     evaluations.put(8, new ArrayList<>());
