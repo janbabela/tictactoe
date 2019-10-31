@@ -17,9 +17,15 @@ public class GameService {
   public void playMoreGames(String xOrO) {
 
     playGame(xOrO);
-    System.out.println("Next game: ");
-    playGame(xOrO);
+    System.out.println("Next game? ");
+    Scanner scanInput = new Scanner(System.in);
+    String nextGame = scanInput.next();
 
+    while (nextGame.equals("Y")) {
+      playGame(xOrO);
+      System.out.println("Next game? ");
+      nextGame = scanInput.next();
+    }
   }
 
   public void playGame(String xOrO) {
@@ -36,15 +42,16 @@ public class GameService {
       while (countMoves < 9) {
         game = moveService.addInputMove(scanInput, game, "O");
         visualizationService.drawBoard(game);
-        arbiterService.checkWinner(game.getLastBoard(), "O");
+        if (arbiterService.checkWinner(game.getLastBoard(), "O")) break;
         countMoves++;
 
         game = strategyX.doMove(game);
         visualizationService.drawBoard(game);
-        arbiterService.checkWinner(game.getLastBoard(), "X");
+        if (arbiterService.checkWinner(game.getLastBoard(), "X")) break;
         countMoves++;
       }
-      System.out.println("Game ends in draw.");
+
+      if (countMoves == 9) System.out.println("Game ends in draw.");
 
     } else if (xOrO.equals("X")) {
       System.out.println("Do your first move.");
@@ -56,16 +63,24 @@ public class GameService {
 
         game = strategyO.doMove(game);
         visualizationService.drawBoard(game);
-        arbiterService.checkWinner(game.getLastBoard(), "O");
+        if (arbiterService.checkWinner(game.getLastBoard(), "O")) {
+          strategyO.updateEvaluations(game, "O");
+          break;
+        }
         countMoves++;
 
         game = moveService.addInputMove(scanInput, game, "X");
         visualizationService.drawBoard(game);
-        arbiterService.checkWinner(game.getLastBoard(), "X");
+        if (arbiterService.checkWinner(game.getLastBoard(), "X")) {
+          strategyO.updateEvaluations(game, "X");
+          break;
+        }
         countMoves++;
       }
-      System.out.println("Game ends in draw.");
-      strategyO.updateEvaluations(game, "D");
+      if (countMoves == 9) {
+        System.out.println("Game ends in draw.");
+        strategyO.updateEvaluations(game, "D");
+      }
     } else if (xOrO.equals("P")) {
       try {
         game = strategyX.doMove(game);

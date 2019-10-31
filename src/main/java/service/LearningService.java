@@ -13,9 +13,7 @@ public class LearningService {
 
   CommonStrategyService commonStrategyService = new CommonStrategyService();
 
-  public List<Evaluation> updateEvaluationStep(List<Evaluation> evaluationsForStep, Game game, String winner, int step) {
-
-    Evaluation newEvaluation;
+  public List<Evaluation> updateEvaluationStep(List<Evaluation> evaluationsForStep, Game game, String winner, int step, String xOrO) {
 
     Board previousBoard = game.getGame().get(step-1);
 
@@ -25,18 +23,53 @@ public class LearningService {
 
     if (evaluationForPosition.isPresent()) {
 
-      newEvaluation = updateEvaluation(lastMove, evaluationForPosition.get(), winner, "0"); //todo make the same for X
-      evaluationsForStep.remove(evaluationForPosition.get());
-      evaluationsForStep.add(newEvaluation);
+      evaluationsForStep = updateEvaluationsOriginalRotatedAndReflected(lastMove, evaluationForPosition.get(), winner, xOrO);
+
     }
     else {
-      newEvaluation = createEvaluation(lastMove, previousBoard, winner, "O");
-      evaluationsForStep.add(newEvaluation);
+      List<Evaluation> newEvaluations = createEvaluationsOriginalRotatedAndReflected(lastMove, previousBoard, winner, xOrO);
+      evaluationsForStep.addAll(newEvaluations);
     }
 
     return evaluationsForStep;
   }
 
+  private List<Evaluation> updateEvaluationsOriginalRotatedAndReflected(Move move, Evaluation previousEvaluation, String winner, String xOrO) {
+
+    List<Evaluation> evaluationList = new ArrayList<>();
+
+    Evaluation newEvaluation;
+    newEvaluation = updateEvaluation(move, previousEvaluation, winner, xOrO);
+    evaluationList.remove(previousEvaluation);
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, reflectEvaluation(previousEvaluation), winner, xOrO);
+    evaluationList.remove(reflectEvaluation(previousEvaluation));
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, rotateEvaluation(previousEvaluation), winner, xOrO);
+    evaluationList.remove(rotateEvaluation(previousEvaluation));
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, reflectEvaluation(rotateEvaluation(previousEvaluation)), winner, xOrO);
+    evaluationList.remove(reflectEvaluation(rotateEvaluation(previousEvaluation)));
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, rotateEvaluation(rotateEvaluation(previousEvaluation)), winner, xOrO);
+    evaluationList.remove(rotateEvaluation(rotateEvaluation(previousEvaluation)));
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, reflectEvaluation(rotateEvaluation(rotateEvaluation(previousEvaluation))), winner, xOrO);
+    evaluationList.remove(reflectEvaluation(rotateEvaluation(rotateEvaluation(previousEvaluation))));
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, rotateEvaluation(rotateEvaluation(rotateEvaluation(previousEvaluation))), winner, xOrO);
+    evaluationList.remove(rotateEvaluation(rotateEvaluation(rotateEvaluation(previousEvaluation))));
+    evaluationList.add(newEvaluation);
+    newEvaluation = updateEvaluation(move, reflectEvaluation(rotateEvaluation(rotateEvaluation(rotateEvaluation(previousEvaluation)))), winner, xOrO);
+    evaluationList.remove(reflectEvaluation(rotateEvaluation(rotateEvaluation(rotateEvaluation(previousEvaluation)))));
+    evaluationList.add(newEvaluation);
+
+    return evaluationList;
+  }
+  
+  
+  
+  
   private Evaluation updateEvaluation(Move move, Evaluation evaluation, String winner, String xOrO) {
 
     if ((winner.equals("X") && xOrO.equals("O")) || (winner.equals("O") && xOrO.equals("X"))) {
@@ -66,6 +99,30 @@ public class LearningService {
     return evaluation;
   }
 
+  private List<Evaluation> createEvaluationsOriginalRotatedAndReflected(Move move, Board previousBoard, String winner, String xOrO) {
+    
+    List<Evaluation> evaluationList = new ArrayList<>();
+
+    Evaluation newEvaluation = createEvaluation(move, previousBoard, winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, reflectBoard(previousBoard), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, rotateBoard(previousBoard), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, reflectBoard(rotateBoard(previousBoard)), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, rotateBoard(rotateBoard(previousBoard)), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, reflectBoard(rotateBoard(rotateBoard(previousBoard))), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, rotateBoard(rotateBoard(rotateBoard(previousBoard))), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    newEvaluation = createEvaluation(move, reflectBoard(rotateBoard(rotateBoard(rotateBoard(previousBoard)))), winner, xOrO);
+    evaluationList.add(newEvaluation);
+    
+    return evaluationList;
+  }
+  
   private Evaluation createEvaluation(Move move, Board previousBoard, String winner, String xOrO) {
 
     Evaluation evaluationCreated = new Evaluation();
@@ -79,11 +136,11 @@ public class LearningService {
         if (mark.equals("X") || mark.equals("O")) evaluationCreated.getEvaluation()[i][j].setEvaluationValue(-2);
       }
     }
-    evaluationCreated.getEvaluation()[move.getRow()][move.getRow()].setEvaluationValue(winner.equals(xOrO) ? 1 : -1);
+    evaluationCreated.getEvaluation()[move.getRow()][move.getColumn()].setEvaluationValue(winner.equals(xOrO) ? 1 : -1);
     if (winner.equals("D")) {
-      evaluationCreated.getEvaluation()[move.getRow()][move.getRow()].setEvaluationValue(drawValue);
+      evaluationCreated.getEvaluation()[move.getRow()][move.getColumn()].setEvaluationValue(drawValue);
     }
-    evaluationCreated.getEvaluation()[move.getRow()][move.getRow()].setGamesPlayedOn(1);
+    evaluationCreated.getEvaluation()[move.getRow()][move.getColumn()].setGamesPlayedOn(1);
 
     return evaluationCreated;
   }
@@ -100,6 +157,7 @@ public class LearningService {
 
   private Move findFirstMove(Board board) {
 
+    //todo make also for X
     Move move = new Move(2, 2);
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
@@ -124,4 +182,68 @@ public class LearningService {
     return move;
   }
 
+  private Board rotateBoard(Board originalBoard) {
+    
+    Board newBoard = originalBoard;
+    
+    newBoard.getBoard()[0][0] = originalBoard.getBoard()[2][0];
+    newBoard.getBoard()[2][0] = originalBoard.getBoard()[2][2];
+    newBoard.getBoard()[2][2] = originalBoard.getBoard()[0][2];
+    newBoard.getBoard()[0][2] = originalBoard.getBoard()[0][0];
+    
+    newBoard.getBoard()[0][1] = originalBoard.getBoard()[1][0];
+    newBoard.getBoard()[1][0] = originalBoard.getBoard()[2][1];
+    newBoard.getBoard()[2][1] = originalBoard.getBoard()[1][2];
+    newBoard.getBoard()[1][2] = originalBoard.getBoard()[0][1];    
+
+    return newBoard;
+  }
+
+  private Board reflectBoard(Board originalBoard) {
+
+    Board newBoard = originalBoard;
+
+    newBoard.getBoard()[0][0] = originalBoard.getBoard()[0][2];
+    newBoard.getBoard()[1][0] = originalBoard.getBoard()[1][2];
+    newBoard.getBoard()[2][0] = originalBoard.getBoard()[2][2];
+
+    newBoard.getBoard()[0][2] = originalBoard.getBoard()[0][0];
+    newBoard.getBoard()[1][2] = originalBoard.getBoard()[1][0];
+    newBoard.getBoard()[2][2] = originalBoard.getBoard()[2][0];
+
+    return newBoard;
+  }
+  
+  private Evaluation rotateEvaluation(Evaluation originalEvaluation) {
+
+    Evaluation newEvaluation = originalEvaluation;
+
+    newEvaluation.getEvaluation()[0][0] = originalEvaluation.getEvaluation()[2][0];
+    newEvaluation.getEvaluation()[2][0] = originalEvaluation.getEvaluation()[2][2];
+    newEvaluation.getEvaluation()[2][2] = originalEvaluation.getEvaluation()[0][2];
+    newEvaluation.getEvaluation()[0][2] = originalEvaluation.getEvaluation()[0][0];
+
+    newEvaluation.getEvaluation()[0][1] = originalEvaluation.getEvaluation()[1][0];
+    newEvaluation.getEvaluation()[1][0] = originalEvaluation.getEvaluation()[2][1];
+    newEvaluation.getEvaluation()[2][1] = originalEvaluation.getEvaluation()[1][2];
+    newEvaluation.getEvaluation()[1][2] = originalEvaluation.getEvaluation()[0][1];
+
+    return newEvaluation;
+  }
+
+  private Evaluation reflectEvaluation(Evaluation originalEvaluation) {
+
+    Evaluation newEvaluation = originalEvaluation;
+
+    newEvaluation.getEvaluation()[0][0] = originalEvaluation.getEvaluation()[0][2];
+    newEvaluation.getEvaluation()[1][0] = originalEvaluation.getEvaluation()[1][2];
+    newEvaluation.getEvaluation()[2][0] = originalEvaluation.getEvaluation()[2][2];
+
+    newEvaluation.getEvaluation()[0][2] = originalEvaluation.getEvaluation()[0][0];
+    newEvaluation.getEvaluation()[1][2] = originalEvaluation.getEvaluation()[1][0];
+    newEvaluation.getEvaluation()[2][2] = originalEvaluation.getEvaluation()[2][0];
+
+    return newEvaluation;
+  }
+  
 }

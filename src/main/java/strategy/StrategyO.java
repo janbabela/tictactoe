@@ -25,21 +25,7 @@ public class StrategyO {
   private Map<Integer, List<Evaluation>> evaluations = new HashMap<>();
 
   public StrategyO() {
-    Evaluation testEvaluation2 = new Evaluation();
-    testEvaluation2.getEvaluation()[0][1].setEvaluationValue(-1);
-    testEvaluation2.getEvaluation()[0][1].setGamesPlayedOn(1);
-    testEvaluation2.getEvaluation()[1][0].setEvaluationValue(-1);
-    testEvaluation2.getEvaluation()[1][0].setGamesPlayedOn(1);
-    testEvaluation2.getEvaluation()[2][1].setEvaluationValue(-1);
-    testEvaluation2.getEvaluation()[2][1].setGamesPlayedOn(1);
-    testEvaluation2.getEvaluation()[1][2].setEvaluationValue(-1);
-    testEvaluation2.getEvaluation()[1][2].setGamesPlayedOn(1);
-    testEvaluation2.getEvaluation()[1][1].setEvaluationValue(-2);
-    testEvaluation2.getEvaluation()[1][1].setMark("X");
-    testEvaluation2.getEvaluation()[1][1].setGamesPlayedOn(1);
-    List<Evaluation> testEvaluationForStep2 = new ArrayList<>();
-    testEvaluationForStep2.add(testEvaluation2);
-    evaluations.put(2, testEvaluationForStep2);
+    evaluations.put(2, new ArrayList<>());
     evaluations.put(4, new ArrayList<>());
     evaluations.put(6, new ArrayList<>());
     evaluations.put(8, new ArrayList<>());
@@ -77,24 +63,24 @@ public class StrategyO {
 
   public void updateEvaluations(Game game, String winner) {
 
-    int countMoves = game.getGame().size();
+    int countMoves = game.getGame().size()-1;
 
     List<Evaluation> evaluationsForStep2 = evaluations.get(2);
-    evaluationsForStep2 = learningService.updateEvaluationStep(evaluationsForStep2, game, winner, 2);
+    evaluationsForStep2 = learningService.updateEvaluationStep(evaluationsForStep2, game, winner, 2, "O");
     evaluations.put(2, evaluationsForStep2);
 
     List<Evaluation> evaluationsForStep4 = evaluations.get(4);
-    evaluationsForStep4 = learningService.updateEvaluationStep(evaluationsForStep4, game, winner, 4);
+    evaluationsForStep4 = learningService.updateEvaluationStep(evaluationsForStep4, game, winner, 4, "O");
     evaluations.put(4, evaluationsForStep4);
 
     if (countMoves >= 6) {
       List<Evaluation> evaluationsForStep6 = evaluations.get(6);
-      evaluationsForStep6 = learningService.updateEvaluationStep(evaluationsForStep6, game, winner, 6);
+      evaluationsForStep6 = learningService.updateEvaluationStep(evaluationsForStep6, game, winner, 6, "O");
       evaluations.put(6, evaluationsForStep6);
     }
     if (countMoves >= 8) {
       List<Evaluation> evaluationsForStep8 = evaluations.get(8);
-      evaluationsForStep8 = learningService.updateEvaluationStep(evaluationsForStep8, game, winner, 8);
+      evaluationsForStep8 = learningService.updateEvaluationStep(evaluationsForStep8, game, winner, 8, "O");
       evaluations.put(8, evaluationsForStep8);
     }
   }
