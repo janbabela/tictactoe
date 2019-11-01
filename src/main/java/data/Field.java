@@ -26,4 +26,15 @@ public class Field {
     evaluationValue = 0;
   }
 
+  public void updateField(int newGamesPlayedOn, double newEvaluationValue) {
+    gamesPlayedOn = newGamesPlayedOn;
+    evaluationValue = newEvaluationValue;
+  }
+
+  public void setField(Field field) {
+    mark = field.getMark();
+    gamesPlayedOn = field.getGamesPlayedOn();
+    evaluationValue = field.getEvaluationValue();
+  }
+
 }

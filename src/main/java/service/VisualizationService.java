@@ -20,7 +20,7 @@ public class VisualizationService {
   }
 
   public void drawBoard(Game game) {
-    Board board = game.getGame().get(game.getGame().size()-1);
+    Board board = game.getLastBoard();
     drawBoard(board);
   }
 }

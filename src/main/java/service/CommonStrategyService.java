@@ -18,25 +18,12 @@ public class CommonStrategyService {
     Optional<Evaluation> result = Optional.empty();
 
     for (Evaluation evaluation : evaluationsForStep) {
-      if (boardEvaluated(board, evaluation)) {
-        result = Optional.of(evaluation);
+      if (evaluation.getBoard().equalsTransformed(board)) {
+        result = evaluation.returnTransformed(board);
       }
+
     }
     return result;
-  }
-
-  private boolean boardEvaluated(Board board, Evaluation evaluation) {
-    boolean check = true;
-
-    for (int i = 0; i<3; i++) {
-      for (int j = 0; j < 3; j++) {
-        if (!(board.getBoard()[i][j] == evaluation.getEvaluation()[i][j].getMark())) {
-          check = false;
-        }
-      }
-    }
-
-    return check;
   }
 
   public Move makeBestMove(Evaluation evaluationForPosition) {
