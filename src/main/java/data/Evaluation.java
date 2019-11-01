@@ -27,13 +27,25 @@ public class Evaluation {
     }
   }
 
-  public boolean hasEqualBoards(Evaluation evaluation) {
-
-    boolean result = true;
+  public Evaluation(Evaluation evaluation) {
 
     for (int i = 0; i< 3; i++) {
       for (int j = 0; j<3; j++) {
-        if (!getEvaluation()[i][j].getMark().equals(evaluation.getEvaluation()[i][j].getMark())) result = false;
+        getEvaluation()[i][j] = new Field(evaluation.getEvaluation()[i][j]);
+      }
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof Evaluation)) {
+      return false;
+    }
+    Evaluation that = (Evaluation) o;
+    boolean result = true;
+    for (int i = 0; i< 3; i++) {
+      for (int j = 0; j<3; j++) {
+        if (!getEvaluation()[i][j].equals(that.getEvaluation()[i][j])) result = false;
       }
     }
     return result;

@@ -1,8 +1,12 @@
 package data;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import service.VisualizationService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +16,7 @@ public class EvaluationTest {
 
   private Board testBoard = new Board();
   private Evaluation testEvaluation = new Evaluation();
+  private Evaluation testEvaluation_cloned = new Evaluation();
 
   @Before
   public void setup() {
@@ -26,6 +31,7 @@ public class EvaluationTest {
     testBoard.getBoard()[2][0] = "O";
 
     testEvaluation.setBoard(testBoard);
+    testEvaluation_cloned.setBoard(testBoard);
   }
 
 
@@ -47,4 +53,14 @@ public class EvaluationTest {
     visualizationService.drawBoard(testEvaluation.reflectHorizontal().getBoard());
   }
 
+  @Test
+  public void equals() {
+
+    List<Evaluation> evaluationList = new ArrayList<>();
+
+    evaluationList.add(testEvaluation);
+    evaluationList.remove(testEvaluation_cloned);
+
+    Assert.assertEquals(0, evaluationList.size());
+  }
 }

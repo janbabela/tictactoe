@@ -4,8 +4,7 @@ import data.Board;
 import data.Evaluation;
 import data.Game;
 import data.Move;
-
-import java.util.ArrayList;
+;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,8 +25,8 @@ public class LearningService {
     if (evaluationForPosition.isPresent()) {
 
       Move transformedMove = returnTransformed(lastMove, previousBoard, evaluationForPosition.get().getBoard());
-      Evaluation updatedEvaluation  = updateEvaluation(transformedMove, evaluationForPosition.get(), winner, xOrO);
-      evaluationsForStep.remove(evaluationForPosition);
+      Evaluation updatedEvaluation = updateEvaluation(transformedMove, evaluationForPosition.get(), winner, xOrO);
+      evaluationsForStep.remove(evaluationForPosition.get());
       evaluationsForStep.add(updatedEvaluation);
 
     } else {
@@ -42,25 +41,46 @@ public class LearningService {
 
   private Evaluation updateEvaluation(Move move, Evaluation evaluation, String winner, String xOrO) {
 
+    double drawValue = xOrO.equals("X") ? -0.1 : 0.1;
+    double updateValue = xOrO.equals(winner) ? 1 : -1;
+    if (winner.equals("D"))
+      updateValue = drawValue;
+
     double previousEvaluationValue = evaluation.getEvaluation()[move.getRow()][move.getColumn()].getEvaluationValue();
     int previousGamesPlayedOn = evaluation.getEvaluation()[move.getRow()][move.getColumn()].getGamesPlayedOn();
+    double newEvaluationValue = (previousEvaluationValue * previousGamesPlayedOn + updateValue) / (previousGamesPlayedOn + 1);
 
-    if ((winner.equals("X") && xOrO.equals("O")) || (winner.equals("O") && xOrO.equals("X"))) {
-      evaluation.getEvaluation()[move.getRow()][move.getColumn()].updateField(previousGamesPlayedOn + 1,
-          (previousEvaluationValue * previousGamesPlayedOn - 1) / (previousGamesPlayedOn + 1));
+    Evaluation updatedEvaluation = new Evaluation(evaluation);
 
-    } else if ((winner.equals("X") && xOrO.equals("X")) || (winner.equals("O") && xOrO.equals("O"))) {
-      evaluation.getEvaluation()[move.getRow()][move.getColumn()].updateField(previousGamesPlayedOn + 1,
-          (previousEvaluationValue * previousGamesPlayedOn + 1) / (previousGamesPlayedOn + 1));
+    updatedEvaluation.getEvaluation()[move.getRow()][move.getColumn()].updateField(previousGamesPlayedOn + 1, newEvaluationValue);
+
+    Board previousBoard = evaluation.getBoard();
+    Move moveToChange = move;
+
+    if (previousBoard.equals(previousBoard.rotate())) {
+      moveToChange = move.rotate();
+      updatedEvaluation.getEvaluation()[moveToChange.getRow()][moveToChange.getColumn()].updateField(previousGamesPlayedOn + 1, newEvaluationValue);
+      moveToChange = move.rotate().rotate();
+      updatedEvaluation.getEvaluation()[moveToChange.getRow()][moveToChange.getColumn()].updateField(previousGamesPlayedOn + 1, newEvaluationValue);
+      moveToChange = move.rotate().rotate().rotate();
+      updatedEvaluation.getEvaluation()[moveToChange.getRow()][moveToChange.getColumn()].updateField(previousGamesPlayedOn + 1, newEvaluationValue);
     } else {
-      // draw
-      double drawValue = xOrO.equals("X") ? -0.1 : 0.1;
-
-      evaluation.getEvaluation()[move.getRow()][move.getColumn()].updateField(previousGamesPlayedOn + 1,
-          (previousEvaluationValue * previousGamesPlayedOn + drawValue) / (previousGamesPlayedOn + 1));
+      if (previousBoard.equals(previousBoard.reflectHorizontal())) {
+        moveToChange = move.reflectHorizontal();
+      }
+      if (previousBoard.equals(previousBoard.reflectVertical())) {
+        moveToChange = move.reflectVertical();
+      }
+      if (previousBoard.equals(previousBoard.reflectDiagonalMain())) {
+        moveToChange = move.reflectDiagonalMain();
+      }
+      if (previousBoard.equals(previousBoard.reflectDiagonalSecond())) {
+        moveToChange = move.reflectDiagonalSecond();
+      }
+      updatedEvaluation.getEvaluation()[moveToChange.getRow()][moveToChange.getColumn()].updateField(previousGamesPlayedOn  + 1, newEvaluationValue);
     }
 
-    return evaluation;
+    return updatedEvaluation;
   }
 
   public Evaluation createEvaluation(Move lastMove, Board previousBoard, String winner, String xOrO) {
@@ -70,8 +90,8 @@ public class LearningService {
 
     double drawValue = xOrO.equals("X") ? -0.1 : 0.1;
     double updateValue = xOrO.equals(winner) ? 1 : -1;
-    if (winner.equals("D")) updateValue = drawValue;
-
+    if (winner.equals("D"))
+      updateValue = drawValue;
 
     if (previousBoard.equals(previousBoard.rotate())) {
       moveToChange = lastMove.rotate();
@@ -80,8 +100,7 @@ public class LearningService {
       resultEvaluation.getEvaluation()[moveToChange.getRow()][moveToChange.getColumn()].updateField(1, updateValue);
       moveToChange = lastMove.rotate().rotate().rotate();
       resultEvaluation.getEvaluation()[moveToChange.getRow()][moveToChange.getColumn()].updateField(1, updateValue);
-    }
-    else  {
+    } else {
       if (previousBoard.equals(previousBoard.reflectHorizontal())) {
         moveToChange = lastMove.reflectHorizontal();
       }
@@ -158,24 +177,35 @@ public class LearningService {
     }
     return move;
   }
-  
+
   private Move returnTransformed(Move move, Board board, Board transformedBoard) {
     Move transformedMove = move;
-    Board boardToCheck  = board;
-    if  (transformedBoard.equals(boardToCheck.reflectHorizontal())) transformedMove = move.reflectHorizontal();
-    if  (transformedBoard.equals(boardToCheck.reflectVertical())) transformedMove = move.reflectVertical();
+    Board boardToCheck = board;
+    if (transformedBoard.equals(boardToCheck.reflectHorizontal()))
+      transformedMove = move.reflectHorizontal();
+    if (transformedBoard.equals(boardToCheck.reflectVertical()))
+      transformedMove = move.reflectVertical();
     boardToCheck = board.rotate();
-    if ((transformedBoard.equals(boardToCheck))) transformedMove = move.rotate();
-    if (transformedBoard.equals(boardToCheck.reflectHorizontal())) transformedMove = move.rotate().reflectHorizontal();
-    if (transformedBoard.equals(boardToCheck.reflectVertical())) transformedMove = move.rotate().reflectVertical();
+    if ((transformedBoard.equals(boardToCheck)))
+      transformedMove = move.rotate();
+    if (transformedBoard.equals(boardToCheck.reflectHorizontal()))
+      transformedMove = move.rotate().reflectHorizontal();
+    if (transformedBoard.equals(boardToCheck.reflectVertical()))
+      transformedMove = move.rotate().reflectVertical();
     boardToCheck = board.rotate().rotate();
-    if ((transformedBoard.equals(boardToCheck))) transformedMove = move.rotate().rotate();
-    if (transformedBoard.equals(boardToCheck.reflectHorizontal())) transformedMove = move.rotate().rotate().reflectHorizontal();
-    if (transformedBoard.equals(boardToCheck.reflectVertical())) transformedMove = move.rotate().rotate().reflectVertical();
+    if ((transformedBoard.equals(boardToCheck)))
+      transformedMove = move.rotate().rotate();
+    if (transformedBoard.equals(boardToCheck.reflectHorizontal()))
+      transformedMove = move.rotate().rotate().reflectHorizontal();
+    if (transformedBoard.equals(boardToCheck.reflectVertical()))
+      transformedMove = move.rotate().rotate().reflectVertical();
     boardToCheck = board.rotate().rotate().rotate();
-    if ((transformedBoard.equals(boardToCheck))) transformedMove = move.rotate().rotate().rotate();
-    if (transformedBoard.equals(boardToCheck.reflectHorizontal())) transformedMove = move.rotate().rotate().rotate().reflectHorizontal();
-    if (transformedBoard.equals(boardToCheck.reflectVertical())) transformedMove = move.rotate().rotate().rotate().reflectVertical();
+    if ((transformedBoard.equals(boardToCheck)))
+      transformedMove = move.rotate().rotate().rotate();
+    if (transformedBoard.equals(boardToCheck.reflectHorizontal()))
+      transformedMove = move.rotate().rotate().rotate().reflectHorizontal();
+    if (transformedBoard.equals(boardToCheck.reflectVertical()))
+      transformedMove = move.rotate().rotate().rotate().reflectVertical();
 
     return transformedMove;
   }
